@@ -44,7 +44,7 @@ def  fuhe():
     #设置dtype别名方式：元组方式
     arr=np.array(data,dtype=[('name','str',2),
                              ('scores','int32',3),
-                             ('age','int32',1)])
+                             ('age','int32',)])
     print(arr,'LS scores:',arr[2]['scores'])
     #设置dtype的别名方式：字典方式
     arr=np.array(data,dtype={'names':['name','scores','age'],
@@ -77,6 +77,62 @@ def change_shape():
     #扁平化
     arr_1=arr.ravel()
     print(arr_1)
+    #复制变维 扁平化
+    arr_clone=arr_4_5.flatten()
+    arr_clone[0]=500
+    print(arr_clone)
+    print(arr)
+
+'''
+   ndarray数组切片
+'''
+def arr_qie():
+    arr=np.arange(1,10)
+    print(arr)
+    arr_re=arr[::-1]
+    print(arr_re)
+    '''
+        arr[起始下标:终止下标:步长]
+        多维数组的切片
+        arr[begin:end:step,begin:end:step]:表示二维数组的切片,有逗号分隔
+    '''
+    #多维数组切片
+    arr=np.arange(1,21)
+    arr=arr.reshape((4,5))
+    print(arr)
+    print(arr[:,:2])
+
+'''
+    ndarry数组的掩码操作
+    arr[表达式]
+    使用掩码排序
+'''
+def mask_fun():
+    arr=np.arange(1,4)
+    arr=arr.reshape((3,1))
+    print(arr)
+    arr=np.arange(1,4)
+    mask=arr[(arr % 2==0)&(arr<3) ]
+    print(mask)
+    #掩码排序
+    arr=np.array(['A','B','C','G'])
+    mask=[1,2,3,0,2,1,3,1,0]
+    print(arr[mask])
+
+
+'''
+   多维数组的组合和拆分
+   垂直合并                 垂直拆分 2:表示份数
+   np.vstack((a,b,c...))    np.vsplit((c,2))
+   水平合并                 水平拆分
+   no.hstach((a,b,c..))     np.hsplit((c,2))
+   深度合并                 深度拆分
+   np.dstack((a,b,c...))    np.dsplit((c,2))
+'''
+
+
+
+
 
 
 
@@ -89,3 +145,7 @@ if __name__ =='__main__':
     fuhe()
     print("=========================================")
     change_shape()
+    print("=========================================")
+    arr_qie()
+    print("=======ss==================================")
+    mask_fun()
