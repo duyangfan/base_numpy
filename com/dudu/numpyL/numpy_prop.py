@@ -121,6 +121,11 @@ def mask_fun():
 
 
 '''
+    一维数组的列合并
+    np.row_stack((a,b))
+    一维数组按行合并
+    np.column_stack((a,b))
+
    多维数组的组合和拆分
    垂直合并                 垂直拆分 2:表示份数
    np.vstack((a,b,c...))    np.vsplit((c,2))
@@ -128,6 +133,18 @@ def mask_fun():
    no.hstach((a,b,c..))     np.hsplit((c,2))
    深度合并                 深度拆分
    np.dstack((a,b,c...))    np.dsplit((c,2))
+   填充数组
+   path_width=(0,1):前0 后1 对于一维数组
+   np.pad(b,pad_width=(0,1),mode='constant',constant_values=-1)
+   
+   通过axis指定组合方向
+   0：v
+   1:h
+   2:d
+   合并：eg:np.concatenate((a,b),axis=0)
+   拆分：eg：np.split(c,2,axis=0)
+   
+   
 '''
 
 
