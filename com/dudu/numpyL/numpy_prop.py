@@ -42,7 +42,7 @@ def  fuhe():
     print(arr[0][2])
     print(arr.shape)
     #设置dtype别名方式：元组方式
-    arr=np.array(data,dtype=[('name','str',2),
+    arr=np.array(data,dtype=[('name','str_',2),
                              ('scores','int32',3),
                              ('age','int32',)])
     print(arr,'LS scores:',arr[2]['scores'])
@@ -95,6 +95,7 @@ def arr_qie():
         arr[起始下标:终止下标:步长]
         多维数组的切片
         arr[begin:end:step,begin:end:step]:表示二维数组的切片,有逗号分隔
+        注意：针对切片的第一个结果，然后再进行切片
     '''
     #多维数组切片
     arr=np.arange(1,21)
@@ -143,8 +144,6 @@ def mask_fun():
    2:d
    合并：eg:np.concatenate((a,b),axis=0)
    拆分：eg：np.split(c,2,axis=0)
-   
-   
 '''
 
 
