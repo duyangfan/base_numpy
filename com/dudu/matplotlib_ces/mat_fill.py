@@ -62,6 +62,7 @@ def fill():
         x,      #水平坐标数组
         y,      #柱状图高度数组
         width,  #柱子的宽度
+        origin, #起始位置数组
         color,
         label,  
         alpha,
