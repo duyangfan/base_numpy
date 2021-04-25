@@ -5,9 +5,12 @@
 #@File  : numpy_fun.py
 
 import numpy as np
+import numpy.fft as nf
 import datetime as dt
+import cv2 as cv
 import matplotlib.pyplot as mp
 import matplotlib.dates as md
+import scipy.io.wavfile as wf
 '''
     numpy  文件读取
     np.loadtxt(
@@ -238,5 +241,290 @@ def get_next_data():
  奖励<---->交易
 '''
 
+'''
+   协方差    相关矩阵      相关系数
+   协方差：  可以评估两组统计数据的相似程度，值为正，正相关，值为负，负相关，绝对值越大相关性越强
+   算法：
+   1.计算平均值
+   2.计算离差：元素-平均值
+   3.计算协方差，对应元素相乘之后就平均值。
+   
+   
+   相关系数：协方差
+   1.标准差：①离差^2  ②之后开方 np.std(arr):计算标准差
+   1.协方差除以两组统计样本的标准差的乘积是一个[-1,1]的数。
+   
+   
+   相关矩阵：np.corrcoef(A,B)
+   [[a与a的相关系数     a与b的相关系数]
+    [b与a的相关系数     b与b的相关系数]]
+    
+    np.cov(A,B)相关矩阵的分子矩阵
+'''
+
+'''
+  多项式拟合
+  多项式一般表示：y=p0*x^n+p1*x^(n-1)...+pn   表示为：[p0,p1....,pn]
+  根据一组样本，给出最高次幂，求出拟合系数：np.ployfit(x,y,最高次幂)-->P_arr
+  
+  多项式运算：
+  np.polyval(p_arr,X)->：根据多项式函数与自变量求出拟合值，由此可得【拟合】曲线坐标样本【数据】。
+  
+  多项式求导,得到导数函数：np.ployder(p_arr)
+  
+  已知多项式系数p_arr,求多项式函数的根：xs=np.roots(p_arr)
+  
+  两个多项式函数的差函数的系数：np.polysub(p1_arr,p2_arr)
+  
+  数据平滑：包涵降噪，拟合。降噪去除额外的影响因素，拟合的目的是数学模型化，可以通过更多的数学方法识别曲线的特征
+  
+  np.diff(arr):前一个数 —— 后一个数  返回arr
+  np.hanning(8)
+'''
+def duo_fun():
+    x=np.linspace(-20,20,1000)
+    y=4*x**3+3*x**2-1000*x+1
+
+    #提取多项式系数
+    p=np.array([4,3,-1000,1])
+    Q=np.polyder(p)
+    R=np.roots(p)
+    rY=np.polyval(p,R)
+
+
+
+    mp.plot(x,y)
+    mp.scatter(R,rY,s=60,marker='D')
+    mp.show()
+
+
+
+'''
+矩阵的逆：E.I
+
+'''
+
+def mat_fun():
+   A=np.mat('1 2 6;3 5 7;4 8 9')
+   print(A)
+
+   print(A.I)
+
+   print(A*A.I)
+
+
+'''
+  特征值   特征向量   奇异值
+  对于n阶  -方阵-  A, 如果存在数a和非零n维列向量x,使得Ax=ax,则称a是矩阵A的一个特诊值，x是矩阵A属于特诊值a的特诊向量
+  A  X = a X  a:是A的特诊值    X:是A的特征向量
+  a,X=np.linalg.eig(A).
+  
+  已知特征值和特征向量，求方阵
+  S=np.mat(X)*np.mat(np.diag(a)*np.mat(X.I)
+  
+  
+  奇异值分析：--可以针对非方阵
+  有一个矩阵M,可以分解为3个矩阵U,S,V,使得U*S*V等于M.U与V都是正交矩阵（乘以自身的转置矩阵结果为单位矩阵），那么S矩阵主对角线上的元素称为矩阵M的奇异值，其它元素为0
+  np.linalg.svd(
+  
+'''
+def mat_fun():
+
+    A=np.mat('1 6 3 7;3 8 4 6;1 4 9 5;6 8 3 5')
+    print(A)
+    a,X=np.linalg.eig(A)
+    print('a',a)
+    print('--------------')
+    print('X',X)
+    #逆向推导原矩阵
+    A_2=X*np.diag(a)*X.I
+    print(A_2)
+
+
+
+###提取图片的特征值
+def img_arr():
+    #读取图片
+    img=cv.imread('../files/apple.jpg',flags=0)
+    print(img.shape)
+    img=np.mat(img)
+    eigvals,eigves=np.linalg.eig(img)
+
+    #抹掉一部分特征值
+    eigvals[50:]=0
+    img2=eigves*np.diag(eigvals)*eigves.I
+    print(img2.dtype)
+    img2=img2.real
+    #奇异值分解
+    U,sv,V=np.linalg.svd(img)
+    sv[50:]=0
+    img3=U*np.diag(sv)*V
+
+
+
+    #绘图
+    mp.figure('apple')
+    mp.subplot(221)
+    mp.imshow(img,cmap='gray')
+    mp.xticks([])
+    mp.yticks([])
+    mp.subplot(222)
+    mp.imshow(img2,cmap='gray')
+    mp.xticks([])
+    mp.yticks([])
+    mp.subplot(223)
+
+    mp.imshow(img3, cmap='gray')
+    mp.xticks([])
+    mp.yticks([])
+    mp.tight_layout()
+    mp.show()
+
+
+#奇异值
+def svd_fun():
+    M=np.mat('4 11 14;8 7 -2')
+    print(M)
+    U,SV,V=np.linalg.svd(M,full_matrices=False)
+    print(U*U.I)
+    print('--------')
+    print(V*V.I)
+    print('-----------')
+    print(SV)
+    S=np.diag(SV)
+    print(S)
+    print(U*S*V)
+
+
+'''
+ 傅里叶定理：任何一条周期曲线，无论多么跳跃或不规则，都能表示成一组光滑正选曲线叠加之和
+ 傅里叶变换：对于一条不规则的曲线进行拆解，从而得到一组光滑正选曲线函数过程。
+ y=Asin(wX,φ)
+ 时域图---->频域图 
+ import numpy.fft as nf
+ 
+ 通过采样数与采样周期求得傅里叶变换分解所得曲线的频率序列
+ freqs=nf.fftfreq(采样数，采样周期)->频率序列
+ 
+ 通过原函数的序列经过快速傅里叶变换得到一个复数数组，复数的摸代表的是振幅，复数的辐角代表初相位
+ nf.fft(原函数值序列)->目标函数值序列(复数)
+ 
+ 通过一个复数数组（复数的模代表的是振幅，复数的辐角代表初相位)经过逆向傅里叶变换得到合成的函数值数组
+ np.fft.ifft(目标函数值序列(复数))->原函数值序列
+ 
+ 
+ 
+ 
+ 
+'''
+
+
+def fourier_fun():
+    x = np.linspace(-np.pi, np.pi, 1000)
+    y = np.zeros(1000)
+    n = 1000
+    for i in range(1, n + 1):
+        y += 4 / ((2 * i - 1) * np.pi) * np.sin((2 * i - 1) * x)
+
+
+    conplex_arr=_arr=nf.fft(y)
+    #复数的模
+    i=np.abs(conplex_arr)
+    print(i)
+    y_=nf.ifft(conplex_arr)
+
+    mp.plot(x, y, label='n=1000')
+    mp.subplot(121)
+    mp.plot(x, y_, label='ifft',linewidth=7,color='orangered',alpha=0.3)
+    ax = mp.gca()
+    ax.spines['bottom'].set_position(('data', 0))
+    mp.xticks([-np.pi, -np.pi / 2, 0, np.pi / 2, np.pi],
+              [r'$-\pi$', r'$-\frac{\pi}{2}$', '0', r'$\frac{\pi}{2}$', r'$\pi$'])
+    mp.yticks([-1, 1])
+
+
+    #绘制频域图像
+    freqs=nf.fftfreq(y.size,x[1]-x[0])
+    pows=np.abs(conplex_arr)
+    mp.subplot(122)
+    mp.plot(freqs,pows,color='orangered')
+
+
+
+    mp.legend()
+    mp.show()
+
+'''
+  基于傅里叶变换的频域滤波
+'''
+def music_fun():
+    #采样率      每个采样位移值
+    sample_rate,sigs=wf.read('../files/music.wav')
+    print(sample_rate)
+    #绘制音频时域图：时间、位移图像
+    times=np.arange(len(sigs))/sample_rate
+    sigs=sigs/(2**15)
+    print(times)
+    mp.figure('fitter',facecolor='lightgray')
+    mp.subplot(221)
+    mp.title('Time Domain',fontsize=16)
+    mp.ylabel('signal',fontsize=12)
+    mp.grid(linestyle=':')
+    mp.plot(times[:1000],sigs[:1000],color='dodgerblue')
+
+
+    #获取频域信息
+    freqs=nf.fftfreq(sigs.size,1/sample_rate)
+    print('sigs ',len(sigs))
+    complex_arr=nf.fft(sigs)
+    pows=np.abs(complex_arr)
+
+    mp.subplot(222)
+    mp.title('Frequence Domain', fontsize=16)
+    mp.ylabel('pow', fontsize=12)
+    mp.grid(linestyle=':')
+    mp.semilogy(freqs[:1000], pows[0:1000], color='dodgerblue',label='f')
+
+
+
+
+    pows_med=np.median(pows)
+    print('pows',pows_med)
+    #拿到所有噪声的索引
+    noised_indices=np.where(freqs<=pows_med)[0]
+
+
+    print('noised_indices', noised_indices[:16148])
+    freq_x=freqs[noised_indices[:16148]]
+    pows=np.abs(freq_x)
+
+    mp.subplot(223)
+    mp.title('Domain', fontsize=16)
+    mp.ylabel('pow', fontsize=12)
+    mp.grid(linestyle=':')
+    mp.semilogy(freqs[:1000], pows[0:1000], color='dodgerblue', label='f')
+
+
+    mp.legend()
+
+    mp.show()
+
+
+
+'''
+ 随机数模块(random)
+ 二项分布：np.random.binomial(n,p,size) 每次试验都相互独立,n:尝试中的成功次数   p:成功的概率,size:重复次数
+ 正态分布：np.random.normal(loc=期望,scale=标准差,size)
+ 超几何分布：np.random.hypergeometrc(ngood,nbad,nsample,size)
+
+
+'''
+
+def random_fun():
+    arr=np.random.binomial(10,0.7,10)
+    print(arr)
+
+
+
 if __name__ == '__main__':
-    get_next_data()
+    random_fun()
